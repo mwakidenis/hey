@@ -31,7 +31,10 @@ const PostMenu = ({ post }: PostMenuProps) => {
         <button
           aria-label="More"
           className="rounded-full p-1.5 hover:bg-gray-300/20"
-          onClick={stopEventPropagation}
+          onClick={(e) => {
+            stopEventPropagation(e);
+            umami.track("open_post_menu");
+          }}
           type="button"
         >
           <EllipsisHorizontalIcon

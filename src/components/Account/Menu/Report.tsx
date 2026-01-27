@@ -20,7 +20,10 @@ const Report = ({ account }: ReportProps) => {
           "m-2 flex cursor-pointer items-center space-x-2 rounded-lg px-2 py-1.5 text-sm"
         )
       }
-      onClick={() => setShowReportAccountModal(true, account)}
+      onClick={() => {
+        umami.track("open_report_account");
+        setShowReportAccountModal(true, account);
+      }}
     >
       <FlagIcon className="size-4" />
       <div>Report account</div>

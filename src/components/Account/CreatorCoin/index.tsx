@@ -43,7 +43,10 @@ const CreatorCoin = ({ account }: CreatorCoinProps) => {
     <>
       <button
         className="rounded-full bg-gray-200 px-2 dark:bg-gray-700"
-        onClick={() => setShowModal(true)}
+        onClick={() => {
+          umami.track("open_creator_coin");
+          setShowModal(true);
+        }}
         type="button"
       >
         <MetaDetails

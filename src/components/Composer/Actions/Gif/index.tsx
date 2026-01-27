@@ -28,7 +28,10 @@ const Gif = ({ setGifAttachment }: GifProps) => {
             "opacity-50": disable
           })}
           disabled={disable}
-          onClick={() => setShowModal(!showModal)}
+          onClick={() => {
+            umami.track("open_gif_picker");
+            setShowModal(!showModal);
+          }}
           type="button"
         >
           <GifIcon className="size-5" />

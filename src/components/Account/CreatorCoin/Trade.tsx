@@ -119,6 +119,7 @@ const Trade = ({ coin, onClose }: TradeModalProps) => {
 
     try {
       setLoading(true);
+      umami.track("trade_creator_coin", { mode });
       await handleWrongNetwork({ chainId: base.id });
       const client =
         (await getWalletClient(config, { chainId: base.id })) || walletClient;

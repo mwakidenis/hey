@@ -65,6 +65,7 @@ const Attachment = () => {
       return toast.error("File format not allowed.");
     }
     try {
+      umami.track("upload_attachment");
       await handleUploadAttachments(files);
       evt.target.value = "";
     } catch {

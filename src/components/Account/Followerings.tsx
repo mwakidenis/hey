@@ -67,7 +67,10 @@ const Followerings = ({ account }: FolloweringsProps) => {
     <div className="flex gap-8">
       <button
         className="flex gap-x-1"
-        onClick={() => setShowFollowingModal(true)}
+        onClick={() => {
+          umami.track("open_following");
+          setShowFollowingModal(true);
+        }}
         type="button"
       >
         <b>{humanize(stats?.following)}</b>
@@ -75,7 +78,10 @@ const Followerings = ({ account }: FolloweringsProps) => {
       </button>
       <button
         className="flex gap-x-1"
-        onClick={() => setShowFollowersModal(true)}
+        onClick={() => {
+          umami.track("open_followers");
+          setShowFollowersModal(true);
+        }}
         type="button"
       >
         <b>{humanize(stats?.followers)}</b>
