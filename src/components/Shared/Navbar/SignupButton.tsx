@@ -14,6 +14,7 @@ const SignupButton = ({ className }: SignupButtonProps) => {
     <Button
       className={className}
       onClick={() => {
+        umami.track("open_signup");
         setScreen("choose");
         setShowAuthModal(true, "signup");
       }}

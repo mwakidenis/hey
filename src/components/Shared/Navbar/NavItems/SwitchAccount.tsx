@@ -15,7 +15,10 @@ const SwitchAccount = ({ className = "" }: SwitchAccountProps) => {
         "flex w-full items-center space-x-1.5 px-2 py-1.5 text-left text-gray-700 text-sm dark:text-gray-200",
         className
       )}
-      onClick={() => setShowSwitchAccountModal(true)}
+      onClick={() => {
+        umami.track("open_switch_account");
+        setShowSwitchAccountModal(true);
+      }}
       type="button"
     >
       <ArrowsRightLeftIcon className="size-4" />

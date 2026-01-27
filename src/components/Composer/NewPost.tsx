@@ -21,6 +21,7 @@ const NewPost = ({ feed }: NewPostProps) => {
   const [showComposer, setShowComposer] = useState(false);
 
   const handleOpenComposer = () => {
+    umami.track("open_composer");
     setShowComposer(true);
   };
 

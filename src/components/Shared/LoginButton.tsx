@@ -18,6 +18,7 @@ const LoginButton = ({
 
   const handleClick = useCallback((event: MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
+    umami.track("open_login");
     return setShowAuthModal(true);
   }, []);
 

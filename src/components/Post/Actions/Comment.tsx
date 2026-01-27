@@ -23,7 +23,10 @@ const Comment = ({ post, showCount }: CommentProps) => {
       <button
         aria-label="Comment"
         className="rounded-full p-1.5 outline-offset-2 hover:bg-gray-300/20"
-        onClick={() => navigate(`/posts/${post.slug}`)}
+        onClick={() => {
+          umami.track("open_post");
+          navigate(`/posts/${post.slug}`);
+        }}
         type="button"
       >
         <Tooltip

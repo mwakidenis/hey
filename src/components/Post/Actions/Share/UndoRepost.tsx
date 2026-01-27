@@ -74,6 +74,7 @@ const UndoRepost = ({
     }
 
     setIsSubmitting(true);
+    umami.track("undo_repost");
 
     return await undoRepost({
       variables: { request: { post: post.id } }

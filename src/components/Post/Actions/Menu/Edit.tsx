@@ -71,6 +71,7 @@ const Edit = ({ post }: EditProps) => {
       }
       onClick={(event) => {
         stopEventPropagation(event);
+        umami.track("open_edit_post");
         handleEdit();
       }}
     >

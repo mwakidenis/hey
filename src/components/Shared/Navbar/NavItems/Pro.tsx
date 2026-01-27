@@ -6,7 +6,13 @@ const Pro = () => {
   const { setShow: setShowProModal } = useProModalStore();
 
   return (
-    <button onClick={() => setShowProModal(true)} type="button">
+    <button
+      onClick={() => {
+        umami.track("open_pro");
+        setShowProModal(true);
+      }}
+      type="button"
+    >
       <Tooltip content="Pro">
         <CheckBadgeIcon className="size-6" />
       </Tooltip>
