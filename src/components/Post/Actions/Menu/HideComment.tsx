@@ -57,9 +57,11 @@ const HideComment = ({ post }: HideCommentProps) => {
 
   const handleToggleHideComment = async () => {
     if (showHiddenComments) {
+      umami.track("unhide_comment");
       return await unhideComment();
     }
 
+    umami.track("hide_comment");
     return await hideComment();
   };
 

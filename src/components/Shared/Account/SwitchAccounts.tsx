@@ -62,6 +62,7 @@ const SwitchAccounts = () => {
     try {
       setLoggingInAccountId(account);
       setIsSubmitting(true);
+      umami.track("switch_account");
 
       const auth = await switchAccount({ variables: { request: { account } } });
 

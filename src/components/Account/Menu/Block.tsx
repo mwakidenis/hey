@@ -24,9 +24,10 @@ const Block = ({ account }: BlockProps) => {
   const handleClick = useCallback(
     (event: MouseEvent) => {
       stopEventPropagation(event);
+      umami.track(isBlockedByMe ? "open_unblock" : "open_block");
       setShowBlockOrUnblockAlert(true, account);
     },
-    [account, setShowBlockOrUnblockAlert]
+    [account, setShowBlockOrUnblockAlert, isBlockedByMe]
   );
 
   return (

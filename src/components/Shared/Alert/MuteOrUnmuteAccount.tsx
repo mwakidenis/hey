@@ -64,6 +64,7 @@ const MuteOrUnmuteAccount = () => {
     }
 
     setIsSubmitting(true);
+    umami.track(hasMuted ? "unmute" : "mute");
 
     // Unmute
     if (hasMuted) {

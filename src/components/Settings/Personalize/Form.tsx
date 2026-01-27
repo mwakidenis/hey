@@ -120,6 +120,7 @@ const PersonalizeSettingsForm = () => {
     }
 
     setIsSubmitting(true);
+    umami.track("update_profile");
     const preparedAccountMetadata = prepareAccountMetadata(currentAccount, {
       attributes: {
         location: data.location,

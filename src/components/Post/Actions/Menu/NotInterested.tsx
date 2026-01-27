@@ -63,9 +63,11 @@ const NotInterested = ({ post }: NotInterestedProps) => {
 
   const handleToggleNotInterested = async () => {
     if (notInterested) {
+      umami.track("undo_not_interested");
       return await undoPostNotInterested();
     }
 
+    umami.track("not_interested");
     return await addPostNotInterested();
   };
 

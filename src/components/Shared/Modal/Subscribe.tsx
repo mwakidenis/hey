@@ -70,6 +70,7 @@ const Subscribe = () => {
 
   const handleSubscribe = async () => {
     setIsSubmitting(true);
+    umami.track("subscribe");
 
     return await joinGroup({
       variables: { request: { group: PERMISSIONS.SUBSCRIPTION } }

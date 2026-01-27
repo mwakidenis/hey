@@ -25,6 +25,7 @@ const Mute = ({ account }: MuteProps) => {
       }
       onClick={(event) => {
         stopEventPropagation(event);
+        umami.track(isMutedByMe ? "open_unmute" : "open_mute");
         setShowMuteOrUnmuteAlert(true, account);
       }}
     >

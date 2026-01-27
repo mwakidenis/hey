@@ -29,6 +29,7 @@ const CopyPostText = ({ post }: CopyPostTextProps) => {
       }
       onClick={(event) => {
         stopEventPropagation(event);
+        umami.track("copy_post_text");
         copyContent();
       }}
     >

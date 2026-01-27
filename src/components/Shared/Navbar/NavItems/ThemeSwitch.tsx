@@ -12,9 +12,12 @@ const ThemeSwitch = ({ className = "", onClick }: ThemeSwitchProps) => {
   const { toggleTheme, theme } = useTheme();
 
   const handleClick = useCallback(() => {
+    umami.track("switch_theme", {
+      theme: theme === "light" ? "dark" : "light"
+    });
     toggleTheme();
     onClick?.();
-  }, [toggleTheme, onClick]);
+  }, [toggleTheme, onClick, theme]);
 
   return (
     <button

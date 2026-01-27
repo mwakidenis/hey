@@ -89,6 +89,7 @@ const BlockOrUnblockAccount = () => {
     }
 
     setIsSubmitting(true);
+    umami.track(hasBlocked ? "unblock" : "block");
 
     // Unblock
     if (hasBlocked) {

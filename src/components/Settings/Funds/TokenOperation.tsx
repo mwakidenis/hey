@@ -67,6 +67,7 @@ const TokenOperation = ({
 
   const handleSubmit = () => {
     setIsSubmitting(true);
+    umami.track(title.toLowerCase().replace(" ", "_"));
 
     return mutate({ variables: { request: buildRequest(inputValue) } });
   };
