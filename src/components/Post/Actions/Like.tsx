@@ -91,6 +91,7 @@ const Like = ({ post, showCount }: LikeProps) => {
     }
 
     increment();
+    umami.track("like_post");
 
     return await addReaction({
       variables: {
