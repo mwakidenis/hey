@@ -16,7 +16,7 @@
 - API: `pnpm -F @hey/api dev` (typecheck: `pnpm -F @hey/api typecheck`).
 - Lint/format: `pnpm biome:check` (auto-fix: `pnpm biome:fix`).
 - Types: `pnpm typecheck` — TypeScript across the monorepo.
-- Node & PM: Node 20 (`.nvmrc`), PNPM 10 (see `package.json#packageManager`).
+- Node & PM: Node 22 (`.nvmrc`), PNPM 10 (see `package.json#packageManager`).
 
 ## Coding Style & Naming
 
