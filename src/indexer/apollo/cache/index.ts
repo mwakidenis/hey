@@ -12,8 +12,16 @@ const cache = new InMemoryCache({
         timeline: createCursorFieldPolicy(["request", ["account"]]),
         timelineHighlights: createCursorFieldPolicy(["request", ["account"]]),
         following: createCursorFieldPolicy(["request", ["account"]]),
+        accountsAvailable: createCursorFieldPolicy([
+          "request",
+          ["hiddenFilter", "includeOwned", "managedBy", "pageSize"]
+        ]),
         groupMembers: createCursorFieldPolicy(["request", ["group"]]),
         followers: createCursorFieldPolicy(["request", ["account"]]),
+        followersYouKnow: createCursorFieldPolicy([
+          "request",
+          ["filter", "observer", "orderBy", "pageSize", "target"]
+        ]),
         posts: createCursorFieldPolicy(["request", ["filter", "pageSize"]]),
         postReferences: createCursorFieldPolicy([
           "request",
@@ -27,10 +35,15 @@ const cache = new InMemoryCache({
         accountsBlocked: createCursorFieldPolicy(["request", ["filter", "pageSize"]]),
         accountManagers: createCursorFieldPolicy(["request", ["filter", "pageSize"]]),
         authenticatedSessions: createCursorFieldPolicy(["request", ["filter", "pageSize"]]),
+        tokenDistributions: createCursorFieldPolicy(["request", ["pageSize"]]),
         usernames: createCursorFieldPolicy(["request", ["filter", "pageSize"]]),
         notifications: createCursorFieldPolicy(["request", ["filter", "pageSize"]]),
         mlPostsExplore: createCursorFieldPolicy(["request", ["filter", "pageSize"]]),
         mlPostsForYou: createCursorFieldPolicy(["request", ["filter", "pageSize"]]),
+        whoExecutedActionOnPost: createCursorFieldPolicy([
+          "request",
+          ["filter", "orderBy", "pageSize", "post"]
+        ]),
       }
     }
   }
