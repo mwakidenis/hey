@@ -42,22 +42,27 @@ const ChooseThumbnail = () => {
     return result;
   };
 
-  const handleSelectThumbnail = (index: number) => {
+  const handleSelectThumbnail = (index: number, thumbnailList = thumbnails) => {
+    const thumbnail = thumbnailList[index];
+    if (!thumbnail) {
+      setSelectedThumbnailIndex(-1);
+      return;
+    }
+
     setSelectedThumbnailIndex(index);
-    if (thumbnails[index]?.decentralizedUrl === "") {
+    if (thumbnail.decentralizedUrl === "") {
       setVideoThumbnail({ ...videoThumbnail, uploading: true });
       getFileFromDataURL(
-        thumbnails[index].blobUrl,
+        thumbnail.blobUrl,
         "thumbnail.jpeg",
         async (file: File) => {
           const result = await uploadThumbnailToStorageNode(file);
-          setThumbnails(
-            thumbnails.map((thumbnail, i) => {
-              if (i === index) {
-                thumbnail.decentralizedUrl = result.uri;
-              }
-              return thumbnail;
-            })
+          setThumbnails((current) =>
+            current.map((thumbnail, i) =>
+              i === index
+                ? { ...thumbnail, decentralizedUrl: result.uri }
+                : thumbnail
+            )
           );
         }
       );
@@ -65,7 +70,7 @@ const ChooseThumbnail = () => {
       setVideoThumbnail({
         ...videoThumbnail,
         uploading: false,
-        url: thumbnails[index]?.decentralizedUrl
+        url: thumbnail.decentralizedUrl
       });
     }
   };
@@ -81,13 +86,9 @@ const ChooseThumbnail = () => {
         thumbnailList.push({ blobUrl: thumbnailBlob, decentralizedUrl: "" });
       }
       setThumbnails(thumbnailList);
-      setSelectedThumbnailIndex(DEFAULT_THUMBNAIL_INDEX);
+      handleSelectThumbnail(DEFAULT_THUMBNAIL_INDEX, thumbnailList);
     } catch {}
   };
-
-  useEffect(() => {
-    handleSelectThumbnail(selectedThumbnailIndex);
-  }, [selectedThumbnailIndex]);
 
   useEffect(() => {
     if (file) {
@@ -107,11 +108,12 @@ const ChooseThumbnail = () => {
         const file = event.target.files[0];
         const result = await uploadThumbnailToStorageNode(file);
         const preview = window.URL?.createObjectURL(file);
-        setThumbnails([
+        const thumbnailList = [
           { blobUrl: preview, decentralizedUrl: result.uri },
           ...thumbnails
-        ]);
-        setSelectedThumbnailIndex(0);
+        ];
+        setThumbnails(thumbnailList);
+        handleSelectThumbnail(0, thumbnailList);
       } catch {
         toast.error("Failed to upload thumbnail");
       } finally {
@@ -128,7 +130,7 @@ const ChooseThumbnail = () => {
       <div className="mt-1 grid grid-cols-3 gap-3 py-0.5 md:grid-cols-5">
         <label
           className="flex h-24 w-full max-w-32 flex-none cursor-pointer flex-col items-center justify-center rounded-xl border border-gray-200 dark:border-gray-700"
-          htmlFor="chooseThumbnail"
+          htmlFor={inputId}
         >
           <input
             accept=".png, .jpg, .jpeg"
