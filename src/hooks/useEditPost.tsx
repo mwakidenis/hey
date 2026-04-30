@@ -31,6 +31,9 @@ const useEditPost = ({ onCompleted, onError }: EditPostProps) => {
       });
 
       if (!data?.post) {
+        toast.error("Post is still processing. Please refresh in a moment.", {
+          id: toastId
+        });
         return;
       }
 
@@ -48,7 +51,11 @@ const useEditPost = ({ onCompleted, onError }: EditPostProps) => {
   const onCompletedWithTransaction = useCallback(
     (hash: string) => {
       const toastId = toast.loading("Editing post...");
-      waitForTransactionToComplete(hash).then(() => updateCache(toastId));
+      waitForTransactionToComplete(hash)
+        .then(() => updateCache(toastId))
+        .catch(() => {
+          toast.error("Post editing failed", { id: toastId });
+        });
       return onCompleted();
     },
     [waitForTransactionToComplete, updateCache, onCompleted]
