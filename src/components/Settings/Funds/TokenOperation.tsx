@@ -17,6 +17,17 @@ interface TokenOperationProps {
   refetch: () => void;
 }
 
+const normalizeTokenAmount = (amount: string): string | null => {
+  const value = amount.trim();
+  const normalized = value.startsWith(".") ? `0${value}` : value;
+
+  if (!/^\d+(\.\d+)?$/.test(normalized)) {
+    return null;
+  }
+
+  return /[1-9]/.test(normalized) ? normalized : null;
+};
+
 const TokenOperation = ({
   useMutationHook,
   buildRequest,
@@ -30,6 +41,8 @@ const TokenOperation = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [inputValue, setInputValue] = useState(value);
+  const availableAmount = normalizeTokenAmount(value);
+  const normalizedInputValue = normalizeTokenAmount(inputValue);
   const handleTransactionLifecycle = useTransactionLifecycle();
   const waitForTransactionToComplete = useWaitForTransactionToComplete();
 
@@ -66,16 +79,22 @@ const TokenOperation = ({
   });
 
   const handleSubmit = () => {
+    if (!normalizedInputValue) {
+      return toast.error("Enter a valid amount");
+    }
+
     setIsSubmitting(true);
     umami.track(title.toLowerCase().replace(" ", "_"));
 
-    return mutate({ variables: { request: buildRequest(inputValue) } });
+    return mutate({
+      variables: { request: buildRequest(normalizedInputValue) }
+    });
   };
 
   return (
     <>
       <Button
-        disabled={isSubmitting || inputValue === "0"}
+        disabled={isSubmitting || !availableAmount}
         loading={isSubmitting}
         onClick={() => setShowModal(true)}
         outline
@@ -99,7 +118,7 @@ const TokenOperation = ({
           </div>
           <Button
             className="w-full"
-            disabled={isSubmitting || !inputValue || inputValue === "0"}
+            disabled={isSubmitting || !normalizedInputValue}
             loading={isSubmitting}
             onClick={handleSubmit}
             size="lg"
