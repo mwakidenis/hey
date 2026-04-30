@@ -43,6 +43,9 @@ const CoverImage = ({
         );
       } catch (error) {
         onError(error as ApolloClientError);
+      } finally {
+        setIsSubmitting(false);
+        event.target.value = "";
       }
     }
   };
