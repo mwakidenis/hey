@@ -1,5 +1,4 @@
 import NewPost from "@/components/Composer/NewPost";
-import ExploreFeed from "@/components/Explore/ExploreFeed";
 import PageLayout from "@/components/Shared/PageLayout";
 import { HomeFeedType } from "@/data/enums";
 import { useAccountStore } from "@/store/persisted/useAccountStore";
@@ -9,6 +8,7 @@ import ForYou from "./ForYou";
 import Hero from "./Hero";
 import Highlights from "./Highlights";
 import Timeline from "./Timeline";
+import TopAccounts from "./TopAccounts";
 
 const Home = () => {
   const { currentAccount } = useAccountStore();
@@ -32,7 +32,7 @@ const Home = () => {
       ) : (
         <>
           <Hero />
-          <ExploreFeed />
+          <TopAccounts />
         </>
       )}
     </PageLayout>

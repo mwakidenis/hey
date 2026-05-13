@@ -34,12 +34,12 @@ const PostFeed = <T extends { id: string }>({
     return <PostsShimmer />;
   }
 
-  if (!items?.length) {
-    return <EmptyState icon={emptyIcon} message={emptyMessage} />;
-  }
-
   if (error) {
     return <ErrorMessage error={error} title={errorTitle} />;
+  }
+
+  if (!items?.length) {
+    return <EmptyState icon={emptyIcon} message={emptyMessage} />;
   }
 
   return (
