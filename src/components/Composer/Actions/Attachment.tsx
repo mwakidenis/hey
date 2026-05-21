@@ -39,12 +39,14 @@ const Attachment = () => {
   ) as MutableRefObject<HTMLDivElement>;
 
   const isTypeAllowed = (files: FileList) =>
-    Array.from(files).some((file) =>
+    Array.from(files).every((file) =>
       [...ImageMimeType, ...AudioMimeType, ...VideoMimeType].includes(file.type)
     );
 
   const isUploadAllowed = (files: FileList) => {
-    const isImage = files[0]?.type.startsWith("image");
+    const isImage = Array.from(files).every((file) =>
+      file.type.startsWith("image")
+    );
     return isImage
       ? attachments.length + files.length <= MAX_IMAGE_UPLOAD
       : files.length === 1;
@@ -54,7 +56,7 @@ const Attachment = () => {
     evt.preventDefault();
     setShowMenu(false);
     const { files } = evt.target;
-    if (!files) return;
+    if (!files?.length) return;
 
     if (!isUploadAllowed(files)) {
       return toast.error(

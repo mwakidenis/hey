@@ -1,4 +1,3 @@
-import { CheckBadgeIcon } from "@heroicons/react/24/solid";
 import { memo } from "react";
 import AccountLink from "@/components/Shared/Account/AccountLink";
 import AccountPreview from "@/components/Shared/Account/AccountPreview";
@@ -50,9 +49,6 @@ export const NotificationAccountName = memo(
           onClick={stopEventPropagation}
         >
           <span>{getAccount(account).name}</span>
-          {account.hasSubscribed && (
-            <CheckBadgeIcon className="size-4 text-brand-500" />
-          )}
         </AccountLink>
       </AccountPreview>
     );

@@ -1,23 +1,25 @@
 import { useCallback, useState } from "react";
-import { useNavigate } from "react-router";
 import JoinLeaveButton from "@/components/Shared/Group/JoinLeaveButton";
 import Markup from "@/components/Shared/Markup";
-import { Button, H3, Image, LightBox } from "@/components/Shared/UI";
+import { H3, Image, LightBox } from "@/components/Shared/UI";
 import { TRANSFORMS } from "@/data/constants";
 import getAvatar from "@/helpers//getAvatar";
 import getMentions from "@/helpers/getMentions";
 import type { GroupFragment } from "@/indexer/generated";
 import { useAccountStore } from "@/store/persisted/useAccountStore";
+import AdminCount from "./Admins";
 import MembersCount from "./MembersCount";
+import GroupMenu from "./Menu";
+import RequestsCount from "./Requests";
 
 interface DetailsProps {
   group: GroupFragment;
 }
 
 const Details = ({ group }: DetailsProps) => {
-  const navigate = useNavigate();
   const { currentAccount } = useAccountStore();
   const [showLightBox, setShowLightBox] = useState<boolean>(false);
+  const isOwner = currentAccount?.address === group.owner;
 
   const handleShowLightBox = useCallback(() => {
     setShowLightBox(true);
@@ -45,13 +47,8 @@ const Details = ({ group }: DetailsProps) => {
             show={showLightBox}
           />
         </div>
-        {currentAccount?.address === group.owner ? (
-          <Button
-            onClick={() => navigate(`/g/${group.address}/settings`)}
-            outline
-          >
-            Edit Group
-          </Button>
+        {isOwner ? (
+          <GroupMenu group={group} />
         ) : (
           <JoinLeaveButton group={group} />
         )}
@@ -64,7 +61,11 @@ const Details = ({ group }: DetailsProps) => {
           </Markup>
         </div>
       ) : null}
-      <MembersCount group={group} />
+      <div className="flex flex-wrap gap-x-8 gap-y-2">
+        <MembersCount group={group} />
+        <AdminCount group={group} />
+        {isOwner ? <RequestsCount groupAddress={group.address} /> : null}
+      </div>
     </div>
   );
 };

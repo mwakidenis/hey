@@ -1,7 +1,7 @@
 import { PauseIcon, PlayIcon } from "@heroicons/react/24/solid";
 import type { APITypes } from "plyr-react";
 import type { ChangeEvent } from "react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { z } from "zod";
 import stopEventPropagation from "@/helpers/stopEventPropagation";
 import { usePostAudioStore } from "@/store/non-persisted/post/usePostAudioStore";
@@ -28,6 +28,14 @@ const Audio = ({ artist, isNew = false, poster, src, title }: AudioProps) => {
   const [playing, setPlaying] = useState(false);
   const playerRef = useRef<APITypes>(null);
   const imageRef = useRef<HTMLImageElement>(null);
+
+  useEffect(() => {
+    return () => {
+      if (newPreviewUri?.startsWith("blob:")) {
+        URL.revokeObjectURL(newPreviewUri);
+      }
+    };
+  }, [newPreviewUri]);
 
   const handlePlayPause = () => {
     if (!playerRef.current) {

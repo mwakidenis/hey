@@ -4,6 +4,7 @@ fragment RepostNotification on RepostNotification {
     ...Post
   }
   reposts {
+    repostedAt
     account {
       ...Account
     }

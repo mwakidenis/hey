@@ -10,6 +10,9 @@ const DOMAIN_PARAM_MAP: Record<string, DomainParamConfig> = {
   "zora.co": { name: "referrer", value: HEY_TREASURY }
 };
 
+const isDomainMatch = (hostname: string, domain: string) =>
+  hostname === domain || hostname.endsWith(`.${domain}`);
+
 const injectReferrerToUrl = (url: string): string => {
   let parsed: URL;
 
@@ -19,9 +22,11 @@ const injectReferrerToUrl = (url: string): string => {
     return url;
   }
 
+  const hostname = parsed.hostname.toLowerCase().replace(/\.$/, "");
+
   const [, config] =
     Object.entries(DOMAIN_PARAM_MAP).find(([domain]) =>
-      parsed.hostname.endsWith(domain)
+      isDomainMatch(hostname, domain)
     ) || [];
 
   if (!config) {

@@ -1,4 +1,3 @@
-import { CheckBadgeIcon } from "@heroicons/react/24/solid";
 import { memo } from "react";
 import Slug from "@/components/Shared/Slug";
 import { Image } from "@/components/Shared/UI";
@@ -47,9 +46,6 @@ const SmallSingleAccount = ({
         )}
       >
         {getAccount(account).name}
-        {account.hasSubscribed ? (
-          <CheckBadgeIcon className="size-4 text-brand-500" />
-        ) : null}
       </div>
       {!hideSlug && (
         <Slug className="text-sm" slug={getAccount(account).username} />

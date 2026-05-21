@@ -1,3 +1,4 @@
+import { useApolloClient } from "@apollo/client";
 import {
   BellIcon,
   GlobeAltIcon as GlobeOutline,
@@ -14,8 +15,13 @@ import { Link, useLocation } from "react-router";
 import { Image } from "@/components/Shared/UI";
 import getAvatar from "@/helpers//getAvatar";
 import useHasNewNotifications from "@/hooks/useHasNewNotifications";
+import {
+  NotificationIndicatorDocument,
+  NotificationsDocument
+} from "@/indexer/generated";
 import { useMobileDrawerModalStore } from "@/store/non-persisted/modal/useMobileDrawerModalStore";
 import { useAccountStore } from "@/store/persisted/useAccountStore";
+import { useNotificationStore } from "@/store/persisted/useNotificationStore";
 import MobileDrawerMenu from "./MobileDrawerMenu";
 
 interface NavigationItemProps {
@@ -53,16 +59,26 @@ const NavigationItem = ({
 const BottomNavigation = () => {
   const { pathname } = useLocation();
   const { currentAccount } = useAccountStore();
+  const client = useApolloClient();
   const { show: showMobileDrawer, setShow: setShowMobileDrawer } =
     useMobileDrawerModalStore();
   const hasNewNotifications = useHasNewNotifications();
+  const { incrementNotificationRefreshSignal } = useNotificationStore();
 
   const handleAccountClick = () => setShowMobileDrawer(true);
 
-  const handleHomClick = (path: string, e: MouseEvent) => {
+  const handleNavigationClick = async (path: string, e: MouseEvent) => {
     if (path === "/" && pathname === "/") {
       e.preventDefault();
       window.scrollTo(0, 0);
+    }
+    if (path === "/notifications" && pathname === "/notifications") {
+      e.preventDefault();
+      window.scrollTo(0, 0);
+      incrementNotificationRefreshSignal();
+      await client.refetchQueries({
+        include: [NotificationsDocument, NotificationIndicatorDocument]
+      });
     }
   };
 
@@ -102,7 +118,9 @@ const BottomNavigation = () => {
             isActive={pathname === path}
             key={path}
             label={label}
-            onClick={(e) => handleHomClick(path, e)}
+            onClick={(e) => {
+              void handleNavigationClick(path, e);
+            }}
             outline={outline}
             path={path}
             showIndicator={hasNewNotifications && path === "/notifications"}

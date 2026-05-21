@@ -1,7 +1,11 @@
 import { useApolloClient } from "@apollo/client";
 import { useCallback } from "react";
 import { toast } from "sonner";
-import { useEditPostMutation, usePostLazyQuery } from "@/indexer/generated";
+import {
+  PostDocument,
+  useEditPostMutation,
+  usePostLazyQuery
+} from "@/indexer/generated";
 import { usePostStore } from "@/store/non-persisted/post/usePostStore";
 import type { ApolloClientError } from "@/types/errors";
 import useTransactionLifecycle from "./useTransactionLifecycle";
@@ -27,14 +31,18 @@ const useEditPost = ({ onCompleted, onError }: EditPostProps) => {
       });
 
       if (!data?.post) {
+        toast.error("Post is still processing. Please refresh in a moment.", {
+          id: toastId
+        });
         return;
       }
 
       setEditingPost(undefined);
       toast.success("Post edited successfully!", { id: toastId });
-      cache.modify({
-        fields: { post: () => data.post },
-        id: cache.identify(data.post)
+      cache.writeQuery({
+        data: { post: data.post },
+        query: PostDocument,
+        variables: { request: { post: data.post.id } }
       });
     },
     [getPost, cache, editingPost]
@@ -43,7 +51,11 @@ const useEditPost = ({ onCompleted, onError }: EditPostProps) => {
   const onCompletedWithTransaction = useCallback(
     (hash: string) => {
       const toastId = toast.loading("Editing post...");
-      waitForTransactionToComplete(hash).then(() => updateCache(toastId));
+      waitForTransactionToComplete(hash)
+        .then(() => updateCache(toastId))
+        .catch(() => {
+          toast.error("Post editing failed", { id: toastId });
+        });
       return onCompleted();
     },
     [waitForTransactionToComplete, updateCache, onCompleted]

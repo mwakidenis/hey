@@ -5,7 +5,7 @@ import Custom500 from "@/components/Shared/500";
 import Cover from "@/components/Shared/Cover";
 import PageLayout from "@/components/Shared/PageLayout";
 import { WarningMessage } from "@/components/Shared/UI";
-import { PERMISSIONS, STATIC_IMAGES_URL } from "@/data/constants";
+import { STATIC_IMAGES_URL } from "@/data/constants";
 import { useGroupQuery } from "@/indexer/generated";
 import { useAccountStore } from "@/store/persisted/useAccountStore";
 import Details from "./Details";
@@ -17,7 +17,7 @@ const ViewGroup = () => {
   const { currentAccount } = useAccountStore();
 
   const { data, loading, error } = useGroupQuery({
-    skip: !address || Object.values(PERMISSIONS).includes(address as any),
+    skip: !address,
     variables: { request: { group: address } }
   });
 
@@ -25,12 +25,12 @@ const ViewGroup = () => {
     return <GroupPageShimmer />;
   }
 
-  if (!data?.group) {
-    return <Custom404 />;
-  }
-
   if (error) {
     return <Custom500 />;
+  }
+
+  if (!data?.group) {
+    return <Custom404 />;
   }
 
   const group = data.group;

@@ -31,6 +31,7 @@ const Copyright = () => {
                   1998, the text of which may be found on the U.S. Copyright
                   Office website at{" "}
                   <Link
+                    rel="noreferrer noopener"
                     target="_blank"
                     to="http://www.copyright.gov/legislation/dmca.pdf"
                   >

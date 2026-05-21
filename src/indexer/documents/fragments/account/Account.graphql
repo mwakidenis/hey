@@ -18,10 +18,4 @@ fragment Account on Account {
   username(request: { autoResolve: true }) {
     ...Username
   }
-  heyEns: username(
-    request: { namespace: "0x6821262A0E15Ed3b4bFD54c1B4fe558C093A103B" }
-  ) {
-    ...Username
-  }
-  ...Permissions
 }

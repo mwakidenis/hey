@@ -1,9 +1,11 @@
 import { BellIcon } from "@heroicons/react/24/outline";
-import { memo, useCallback, useEffect } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef } from "react";
 import { WindowVirtualizer } from "virtua";
 import AccountActionExecutedNotification from "@/components/Notification/Type/AccountActionExecutedNotification";
 import CommentNotification from "@/components/Notification/Type/CommentNotification";
 import FollowNotification from "@/components/Notification/Type/FollowNotification";
+import GroupMembershipRequestApprovedNotification from "@/components/Notification/Type/GroupMembershipRequestApprovedNotification";
+import GroupMembershipRequestRejectedNotification from "@/components/Notification/Type/GroupMembershipRequestRejectedNotification";
 import MentionNotification from "@/components/Notification/Type/MentionNotification";
 import PostActionExecutedNotification from "@/components/Notification/Type/PostActionExecutedNotification";
 import QuoteNotification from "@/components/Notification/Type/QuoteNotification";
@@ -12,13 +14,18 @@ import RepostNotification from "@/components/Notification/Type/RepostNotificatio
 import { Card, EmptyState, ErrorMessage } from "@/components/Shared/UI";
 import { NotificationFeedType } from "@/data/enums";
 import cn from "@/helpers/cn";
+import { getNotificationTimestamp } from "@/helpers/getNotificationTimestamp";
+import { clearNotificationAppBadge } from "@/helpers/notificationBadging";
 import useLoadMoreOnIntersect from "@/hooks/useLoadMoreOnIntersect";
 import {
   type NotificationRequest,
   NotificationType,
   useNotificationsQuery
 } from "@/indexer/generated";
+import { useAccountStore } from "@/store/persisted/useAccountStore";
 import { useNotificationStore } from "@/store/persisted/useNotificationStore";
+import { usePreferencesStore } from "@/store/persisted/usePreferencesStore";
+import type { AnyNotificationFragment } from "@/types/notifications";
 import NotificationShimmer from "./Shimmer";
 import TokenDistributedNotification from "./Type/TokenDistributedNotification";
 
@@ -26,6 +33,8 @@ const notificationComponentMap = {
   AccountActionExecutedNotification,
   CommentNotification,
   FollowNotification,
+  GroupMembershipRequestApprovedNotification,
+  GroupMembershipRequestRejectedNotification,
   MentionNotification,
   PostActionExecutedNotification,
   QuoteNotification,
@@ -35,11 +44,32 @@ const notificationComponentMap = {
 };
 
 interface ListProps {
-  feedType: string;
+  feedType: NotificationFeedType;
 }
 
 const List = ({ feedType }: ListProps) => {
-  const { setLastSeenNotificationId } = useNotificationStore();
+  const {
+    getLastSeenNotificationTimestamp,
+    notificationRefreshSignal,
+    setLastSeenNotificationTimestamp
+  } = useNotificationStore();
+  const { currentAccount } = useAccountStore();
+  const { includeLowScore } = usePreferencesStore();
+
+  const currentSeenTimestamp = useCallback(
+    () =>
+      currentAccount
+        ? getLastSeenNotificationTimestamp(currentAccount.address)
+        : new Date().toISOString(),
+    [currentAccount, getLastSeenNotificationTimestamp]
+  );
+
+  const seenAtMountRef = useRef(currentSeenTimestamp());
+
+  useEffect(() => {
+    seenAtMountRef.current = currentSeenTimestamp();
+    clearNotificationAppBadge();
+  }, [currentSeenTimestamp, notificationRefreshSignal]);
 
   const getNotificationType = useCallback(() => {
     switch (feedType) {
@@ -52,7 +82,10 @@ const List = ({ feedType }: ListProps) => {
       case NotificationFeedType.Likes:
         return [NotificationType.Reacted];
       case NotificationFeedType.PostActions:
-        return [NotificationType.ExecutedPostAction];
+        return [
+          NotificationType.ExecutedPostAction,
+          NotificationType.ExecutedAccountAction
+        ];
       case NotificationFeedType.Rewards:
         return [NotificationType.TokenDistributed];
       default:
@@ -60,12 +93,15 @@ const List = ({ feedType }: ListProps) => {
     }
   }, [feedType]);
 
-  const request: NotificationRequest = {
-    filter: {
-      includeLowScore: false,
-      notificationTypes: getNotificationType()
-    }
-  };
+  const request: NotificationRequest = useMemo(
+    () => ({
+      filter: {
+        includeLowScore,
+        notificationTypes: getNotificationType()
+      }
+    }),
+    [getNotificationType, includeLowScore]
+  );
 
   const { data, error, fetchMore, loading } = useNotificationsQuery({
     variables: { request }
@@ -84,11 +120,14 @@ const List = ({ feedType }: ListProps) => {
     ) {
       return;
     }
-    const firstId = firstNotification.id;
-    if (firstId) {
-      setLastSeenNotificationId(firstId);
+    const timestamp = getNotificationTimestamp(
+      firstNotification as AnyNotificationFragment
+    );
+    if (currentAccount && timestamp) {
+      setLastSeenNotificationTimestamp(currentAccount.address, timestamp);
     }
-  }, [notifications, setLastSeenNotificationId]);
+    clearNotificationAppBadge();
+  }, [currentAccount, notifications, setLastSeenNotificationTimestamp]);
 
   const handleEndReached = useCallback(async () => {
     if (hasMore) {
@@ -137,14 +176,28 @@ const List = ({ feedType }: ListProps) => {
               notification.__typename as keyof typeof notificationComponentMap
             ];
 
+          if (!Component) {
+            return null;
+          }
+
+          const timestamp = getNotificationTimestamp(
+            notification as AnyNotificationFragment
+          );
+          const isNew = timestamp
+            ? new Date(timestamp) > new Date(seenAtMountRef.current)
+            : false;
+
           return (
             <div
-              className={cn({
+              className={cn("relative", {
                 "p-5": notification.__typename !== "FollowNotification"
               })}
               key={notification.id}
             >
-              {Component && <Component notification={notification as never} />}
+              {isNew && (
+                <span className="absolute top-6 left-2 size-2 rounded-full bg-red-500" />
+              )}
+              <Component notification={notification as never} />
             </div>
           );
         })}

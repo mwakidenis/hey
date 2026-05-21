@@ -11,6 +11,12 @@ interface State {
   updateAttachments: (attachments: NewAttachment[]) => void;
 }
 
+const revokePreviewUri = (attachment: NewAttachment) => {
+  if (attachment.previewUri.startsWith("blob:")) {
+    URL.revokeObjectURL(attachment.previewUri);
+  }
+};
+
 const { useStore: usePostAttachmentStore } = createTrackedStore<State>(
   (set) => ({
     addAttachments: (newAttachments) =>
@@ -25,12 +31,25 @@ const { useStore: usePostAttachmentStore } = createTrackedStore<State>(
         for (const id of ids) {
           const index = attachments.findIndex((a) => a.id === id);
           if (index !== -1) {
+            revokePreviewUri(attachments[index]);
             attachments.splice(index, 1);
           }
         }
         return { attachments };
       }),
-    setAttachments: (attachments) => set(() => ({ attachments })),
+    setAttachments: (attachments) =>
+      set((state) => {
+        for (const attachment of state.attachments) {
+          const isKept = attachments.some(
+            ({ id, previewUri }) =>
+              id === attachment.id && previewUri === attachment.previewUri
+          );
+          if (!isKept) {
+            revokePreviewUri(attachment);
+          }
+        }
+        return { attachments };
+      }),
     setIsUploading: (isUploading) => set(() => ({ isUploading })),
     updateAttachments: (updateAttachments) =>
       set((state) => {
@@ -38,6 +57,9 @@ const { useStore: usePostAttachmentStore } = createTrackedStore<State>(
         for (const attachment of updateAttachments) {
           const index = attachments.findIndex((a) => a.id === attachment.id);
           if (index !== -1) {
+            if (attachments[index].previewUri !== attachment.previewUri) {
+              revokePreviewUri(attachments[index]);
+            }
             attachments[index] = attachment;
           }
         }

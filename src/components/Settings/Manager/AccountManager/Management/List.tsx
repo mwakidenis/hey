@@ -1,5 +1,5 @@
 import { UsersIcon } from "@heroicons/react/24/outline";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { WindowVirtualizer } from "virtua";
 import { useAccount } from "wagmi";
@@ -24,6 +24,7 @@ interface ListProps {
 const List = ({ managed = false }: ListProps) => {
   const { address } = useAccount();
   const [updatingAccount, setUpdatingAccount] = useState<string | null>(null);
+  const refetchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const lastLoggedInAccountRequest: LastLoggedInAccountRequest = { address };
   const accountsAvailableRequest: AccountsAvailableRequest = {
@@ -49,6 +50,14 @@ const List = ({ managed = false }: ListProps) => {
   useEffect(() => {
     refetch();
   }, [managed, refetch]);
+
+  useEffect(() => {
+    return () => {
+      if (refetchTimeoutRef.current) {
+        clearTimeout(refetchTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const accountsAvailable = data?.accountsAvailable.items;
   const pageInfo = data?.accountsAvailable?.pageInfo;
@@ -118,7 +127,13 @@ const List = ({ managed = false }: ListProps) => {
         await unhideManagedAccount({ variables: { request: { account } } });
         toast.success("Account is now managed");
       }
-      setTimeout(() => refetch(), 500);
+      if (refetchTimeoutRef.current) {
+        clearTimeout(refetchTimeoutRef.current);
+      }
+      refetchTimeoutRef.current = setTimeout(() => {
+        refetchTimeoutRef.current = null;
+        refetch();
+      }, 500);
     } catch (error) {
       errorToast(error);
     } finally {

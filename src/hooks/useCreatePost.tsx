@@ -38,6 +38,9 @@ const useCreatePost = ({
       });
 
       if (!data?.post) {
+        toast.error("Post is still processing. Please refresh in a moment.", {
+          id: toastId
+        });
         return;
       }
 
@@ -50,12 +53,10 @@ const useCreatePost = ({
         },
         id: toastId
       });
-      cache.modify({
-        fields: {
-          [isComment ? "postReferences" : "posts"]: () => {
-            cache.writeQuery({ data: data.post, query: PostDocument });
-          }
-        }
+      cache.writeQuery({
+        data: { post: data.post },
+        query: PostDocument,
+        variables: { request: { post: data.post.id } }
       });
     },
     [getPost, cache, navigate, isComment]
@@ -63,10 +64,13 @@ const useCreatePost = ({
 
   const onCompletedWithTransaction = useCallback(
     (hash: string) => {
-      const toastId = toast.loading(
-        `${isComment ? "Comment" : "Post"} processing...`
-      );
-      waitForTransactionToComplete(hash).then(() => updateCache(hash, toastId));
+      const type = isComment ? "Comment" : "Post";
+      const toastId = toast.loading(`${type} processing...`);
+      waitForTransactionToComplete(hash)
+        .then(() => updateCache(hash, toastId))
+        .catch(() => {
+          toast.error(`${type} processing failed`, { id: toastId });
+        });
       return onCompleted();
     },
     [waitForTransactionToComplete, updateCache, onCompleted, isComment]

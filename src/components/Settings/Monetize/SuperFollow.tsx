@@ -5,6 +5,7 @@ import {
   useRef,
   useState
 } from "react";
+import { toast } from "sonner";
 import BackButton from "@/components/Shared/BackButton";
 import {
   Button,
@@ -90,6 +91,10 @@ const SuperFollow = () => {
   });
 
   const handleUpdateRule = (remove: boolean) => {
+    if (!remove && (!Number.isFinite(amount) || amount <= 0)) {
+      return toast.error("Enter a valid amount");
+    }
+
     setIsSubmitting(true);
     umami.track(remove ? "remove_super_follow" : "update_super_follow");
 
@@ -128,7 +133,11 @@ const SuperFollow = () => {
         <Input
           className="no-spinner"
           label="Amount"
-          onChange={(e) => setAmount(Number(e.target.value))}
+          min={0}
+          onChange={(e) => {
+            const value = Number(e.target.value);
+            setAmount(Number.isFinite(value) ? Math.max(value, 0) : 0);
+          }}
           placeholder="1"
           prefix={
             <Tooltip
@@ -158,7 +167,7 @@ const SuperFollow = () => {
             </Button>
           )}
           <Button
-            disabled={isSubmitting}
+            disabled={isSubmitting || !Number.isFinite(amount) || amount <= 0}
             loading={isSubmitting}
             onClick={() => handleUpdateRule(false)}
           >

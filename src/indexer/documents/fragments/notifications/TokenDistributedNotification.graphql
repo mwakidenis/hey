@@ -1,5 +1,6 @@
 fragment TokenDistributedNotification on TokenDistributedNotification {
   id
+  actionDate
   amount {
     ...PayableAmount
   }

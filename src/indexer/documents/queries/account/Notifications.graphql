@@ -7,6 +7,12 @@ query Notifications($request: NotificationRequest!) {
       ... on FollowNotification {
         ...FollowNotification
       }
+      ... on GroupMembershipRequestApprovedNotification {
+        ...GroupMembershipRequestApprovedNotification
+      }
+      ... on GroupMembershipRequestRejectedNotification {
+        ...GroupMembershipRequestRejectedNotification
+      }
       ... on MentionNotification {
         ...MentionNotification
       }

@@ -18,7 +18,11 @@ const Support = () => {
             <Link to="/guidelines">Community Guidelines</Link>
             <Link to="/terms">Terms of Service</Link>
             <Link to="/privacy">Hey Privacy Policy</Link>
-            <Link target="_blank" to="https://www.lens.xyz/privacy">
+            <Link
+              rel="noreferrer noopener"
+              target="_blank"
+              to="https://www.lens.xyz/privacy"
+            >
               Lens Privacy Policy
             </Link>
             <Link to="/copyright">Copyright Policy</Link>

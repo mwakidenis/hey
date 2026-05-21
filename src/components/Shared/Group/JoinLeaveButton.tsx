@@ -1,4 +1,3 @@
-import { PERMISSIONS } from "@/data/constants";
 import stopEventPropagation from "@/helpers/stopEventPropagation";
 import type { GroupFragment } from "@/indexer/generated";
 import { useAccountStore } from "@/store/persisted/useAccountStore";
@@ -22,11 +21,6 @@ const JoinLeaveButton = ({
   const { currentAccount } = useAccountStore();
 
   if (currentAccount?.address === group.owner) {
-    return null;
-  }
-
-  // Hide join/leave button for all permission groups
-  if (Object.values(PERMISSIONS).includes(group.address)) {
     return null;
   }
 

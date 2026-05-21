@@ -1,5 +1,4 @@
 import { MapPinIcon } from "@heroicons/react/24/outline";
-import { BeakerIcon, CheckBadgeIcon } from "@heroicons/react/24/solid";
 import type { ReactNode } from "react";
 import { useCallback, useState } from "react";
 import { Link, useNavigate } from "react-router";
@@ -7,7 +6,7 @@ import FollowUnfollowButton from "@/components/Shared/Account/FollowUnfollowButt
 import TipButton from "@/components/Shared/Account/TipButton";
 import Markup from "@/components/Shared/Markup";
 import Slug from "@/components/Shared/Slug";
-import { Button, H3, Image, LightBox, Tooltip } from "@/components/Shared/UI";
+import { Button, H3, Image, LightBox } from "@/components/Shared/UI";
 import { STATIC_IMAGES_URL, TRANSFORMS } from "@/data/constants";
 import getAccount from "@/helpers//getAccount";
 import getAvatar from "@/helpers//getAvatar";
@@ -16,10 +15,7 @@ import getFavicon from "@/helpers/getFavicon";
 import getMentions from "@/helpers/getMentions";
 import { useTheme } from "@/hooks/useTheme";
 import type { AccountFragment } from "@/indexer/generated";
-import { useProModalStore } from "@/store/non-persisted/modal/useProModalStore";
 import { useAccountStore } from "@/store/persisted/useAccountStore";
-import ENSBadge from "../Shared/Account/ENSBadge";
-import CreatorCoin from "./CreatorCoin";
 import Followerings from "./Followerings";
 import FollowersYouKnowOverview from "./FollowersYouKnowOverview";
 import AccountMenu from "./Menu";
@@ -38,7 +34,6 @@ const Details = ({
 }: DetailsProps) => {
   const navigate = useNavigate();
   const { currentAccount } = useAccountStore();
-  const { setShow: setShowProModal } = useProModalStore();
   const [showLightBox, setShowLightBox] = useState<boolean>(false);
   const { theme } = useTheme();
 
@@ -109,26 +104,6 @@ const Details = ({
       <div className="space-y-1 py-2">
         <div className="flex items-center gap-1.5">
           <H3 className="truncate">{getAccount(account).name}</H3>
-          {account.hasSubscribed ? (
-            <Tooltip content="Verified" placement="right">
-              <CheckBadgeIcon className="size-5 text-brand-500" />
-            </Tooltip>
-          ) : currentAccount?.address === account.address ? (
-            <button
-              className="ml-1 flex items-center gap-x-1 rounded-full border border-gray-200 px-2 py-0.5 font-semibold text-xs dark:border-gray-700"
-              onClick={() => setShowProModal(true)}
-              type="button"
-            >
-              <CheckBadgeIcon className="size-4 text-brand-500" />
-              Get Verified
-            </button>
-          ) : null}
-          {account.isBeta && (
-            <Tooltip content="Beta" placement="right">
-              <BeakerIcon className="size-5 text-green-500" />
-            </Tooltip>
-          )}
-          <ENSBadge account={account} className="size-5" linkToDashboard />
         </div>
         <div className="flex items-center space-x-3">
           <Slug
@@ -189,7 +164,6 @@ const Details = ({
               width={16}
             />
           )}
-          <CreatorCoin account={account} />
         </div>
       </div>
     </div>

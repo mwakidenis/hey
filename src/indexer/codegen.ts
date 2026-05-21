@@ -7,7 +7,7 @@ const config: CodegenConfig = {
   },
   documents: "./src/indexer/documents/**/*.graphql",
   generates: {
-    "generated.ts": {
+    "src/indexer/generated.ts": {
       config: {
         addDocBlocks: false,
         disableDescriptions: true,
@@ -22,11 +22,10 @@ const config: CodegenConfig = {
         "typescript-react-apollo"
       ]
     },
-    "possible-types.ts": {
+    "src/indexer/possible-types.ts": {
       plugins: ["fragment-matcher"]
     }
   },
-  hooks: { afterAllFileWrite: ["biome format --write ."] },
   overwrite: true,
   schema: "https://api.lens.xyz/graphql"
 };

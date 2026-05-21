@@ -2,6 +2,7 @@ fragment PostActionExecutedNotification on PostActionExecutedNotification {
   id
   actions {
     ... on SimpleCollectPostActionExecuted {
+      executedAt
       executedBy {
         ...Account
       }
@@ -12,8 +13,21 @@ fragment PostActionExecutedNotification on PostActionExecutedNotification {
       }
     }
     ... on TippingPostActionExecuted {
+      executedAt
       executedBy {
         ...Account
+      }
+      tipAmount {
+        ...PayableAmount
+      }
+    }
+    ... on UnknownPostActionExecuted {
+      executedAt
+      executedBy {
+        ...Account
+      }
+      action {
+        ...UnknownPostAction
       }
     }
   }

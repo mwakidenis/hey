@@ -1,31 +1,20 @@
 import { useState } from "react";
-import Members from "@/components/Shared/Modal/Members";
 import GraphStatsShimmer from "@/components/Shared/Shimmer/GraphStatsShimmer";
 import { Modal } from "@/components/Shared/UI";
-import { PERMISSIONS } from "@/data/constants";
 import humanize from "@/helpers/humanize";
 import { type GroupFragment, useGroupStatsQuery } from "@/indexer/generated";
-import { useAccountStore } from "@/store/persisted/useAccountStore";
+import Members from "./Members";
 
 interface MembersCountProps {
   group: GroupFragment;
 }
 
 const MembersCount = ({ group }: MembersCountProps) => {
-  const { currentAccount } = useAccountStore();
   const [showMembersModal, setShowMembersModal] = useState(false);
-  const hideCount = Object.values(
-    currentAccount?.isStaff ? [] : PERMISSIONS
-  ).includes(group.address);
 
   const { data, loading } = useGroupStatsQuery({
-    skip: hideCount,
     variables: { request: { group: group.address } }
   });
-
-  if (hideCount) {
-    return null;
-  }
 
   if (loading) {
     return <GraphStatsShimmer count={1} />;

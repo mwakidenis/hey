@@ -1,5 +1,5 @@
 import { CheckBadgeIcon } from "@heroicons/react/24/solid";
-import { memo } from "react";
+import { memo, type ReactNode } from "react";
 import Markup from "@/components/Shared/Markup";
 import Slug from "@/components/Shared/Slug";
 import { Image } from "@/components/Shared/UI";
@@ -13,6 +13,7 @@ import AccountPreview from "./AccountPreview";
 import FollowUnfollowButton from "./FollowUnfollowButton";
 
 interface SingleAccountProps {
+  action?: ReactNode;
   hideFollowButton?: boolean;
   hideUnfollowButton?: boolean;
   isBig?: boolean;
@@ -24,6 +25,7 @@ interface SingleAccountProps {
 }
 
 const SingleAccount = ({
+  action,
   hideFollowButton = false,
   hideUnfollowButton = false,
   isBig = false,
@@ -56,15 +58,7 @@ const SingleAccount = ({
         )}
       >
         <div className="truncate font-semibold">{getAccount(account).name}</div>
-        {(isVerified || account.hasSubscribed) && (
-          <CheckBadgeIcon className="size-4 text-brand-500" />
-        )}
-        {account.heyEns?.localName && (
-          <Image
-            className="size-4"
-            src="https://ens.domains/assets/brand/mark/ens-mark-Blue.svg"
-          />
-        )}
+        {isVerified && <CheckBadgeIcon className="size-4 text-brand-500" />}
       </div>
       <Slug className="text-sm" slug={getAccount(account).username} />
     </div>
@@ -93,12 +87,15 @@ const SingleAccount = ({
         ) : (
           <AccountInfo />
         )}
-        <FollowUnfollowButton
-          account={account}
-          hideFollowButton={hideFollowButton}
-          hideUnfollowButton={hideUnfollowButton}
-          small
-        />
+        <div className="ml-3 flex shrink-0 items-center gap-x-2">
+          <FollowUnfollowButton
+            account={account}
+            hideFollowButton={hideFollowButton}
+            hideUnfollowButton={hideUnfollowButton}
+            small
+          />
+          {action}
+        </div>
       </div>
       {showBio && account?.metadata?.bio && (
         <div

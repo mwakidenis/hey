@@ -91,7 +91,7 @@ const Join = ({
       return await handleTransactionLifecycle({
         onCompleted,
         onError,
-        transactionData: joinGroup
+        transactionData: requestGroupMembership
       });
     },
     onError

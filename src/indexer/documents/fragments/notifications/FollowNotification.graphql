@@ -1,6 +1,7 @@
 fragment FollowNotification on FollowNotification {
   id
   followers {
+    followedAt
     account {
       ...Account
     }

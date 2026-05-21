@@ -2,6 +2,16 @@ fragment AccountActionExecutedNotification on AccountActionExecutedNotification 
   id
   actions {
     ... on TippingAccountActionExecuted {
+      executedAt
+      executedBy {
+        ...Account
+      }
+      tipAmount {
+        ...PayableAmount
+      }
+    }
+    ... on UnknownAccountActionExecuted {
+      executedAt
       executedBy {
         ...Account
       }

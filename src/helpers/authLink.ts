@@ -6,7 +6,6 @@ const authLink = new ApolloLink((operation, forward) => {
   const { accessToken, refreshToken } = hydrateAuthTokens();
 
   if (!accessToken || !refreshToken) {
-    signOut();
     return forward(operation);
   }
 
@@ -28,7 +27,10 @@ const authLink = new ApolloLink((operation, forward) => {
         });
         return toPromise(forward(operation));
       })
-      .catch(() => toPromise(forward(operation)))
+      .catch((error) => {
+        signOut();
+        throw error;
+      })
   );
 });
 

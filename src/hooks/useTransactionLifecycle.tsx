@@ -1,7 +1,9 @@
 import { sendEip712Transaction, sendTransaction } from "viem/zksync";
-import { useWalletClient } from "wagmi";
-import { ERRORS } from "@/data/errors";
-import getTransactionData from "@/helpers//getTransactionData";
+import { useConfig } from "wagmi";
+import { getAccount, getWalletClient } from "wagmi/actions";
+import { CHAIN } from "@/data/constants";
+import { ERROR_NAMES, ERRORS } from "@/data/errors";
+import getTransactionData from "@/helpers/getTransactionData";
 import type {
   SelfFundedTransactionRequestFragment,
   SponsoredTransactionRequestFragment,
@@ -18,25 +20,66 @@ type AnyTransactionRequestFragment =
   | ((...args: never[]) => unknown);
 
 const useTransactionLifecycle = () => {
-  const { data } = useWalletClient();
   const handleWrongNetwork = useHandleWrongNetwork();
+  const config = useConfig();
+
+  const getActiveWalletClient = async (
+    transactionType: string,
+    onError: (error: ApolloClientError) => void
+  ) => {
+    if (!getAccount(config).isConnected) {
+      onError({
+        message: ERRORS.SignWallet,
+        name: transactionType
+      });
+      return null;
+    }
+
+    await handleWrongNetwork();
+
+    const walletClient = await getWalletClient(config, {
+      chainId: CHAIN.id
+    }).catch(() => null);
+
+    if (!walletClient) {
+      onError({
+        message: ERRORS.SignWallet,
+        name: transactionType
+      });
+      return null;
+    }
+
+    return walletClient;
+  };
 
   const handleSponsoredTransaction = async (
     transactionData: AnyTransactionRequestFragment,
-    onCompleted: (hash: string) => void
+    onCompleted: (hash: string) => void,
+    onError: (error: ApolloClientError) => void
   ) => {
     if (
       typeof transactionData === "function" ||
       transactionData.__typename !== "SponsoredTransactionRequest" ||
       !("raw" in transactionData)
     ) {
+      return onError({
+        message: ERRORS.SomethingWentWrong,
+        name: ERROR_NAMES.UnknownError
+      });
+    }
+
+    const walletClient = await getActiveWalletClient(
+      transactionData.__typename,
+      onError
+    );
+
+    if (!walletClient) {
       return;
     }
-    await handleWrongNetwork();
-    if (!data) return;
+
     return onCompleted(
-      await sendEip712Transaction(data, {
-        account: data.account,
+      await sendEip712Transaction(walletClient, {
+        account: walletClient.account,
         ...getTransactionData(transactionData.raw, { sponsored: true })
       })
     );
@@ -44,20 +87,32 @@ const useTransactionLifecycle = () => {
 
   const handleSelfFundedTransaction = async (
     transactionData: AnyTransactionRequestFragment,
-    onCompleted: (hash: string) => void
+    onCompleted: (hash: string) => void,
+    onError: (error: ApolloClientError) => void
   ) => {
     if (
       typeof transactionData === "function" ||
       transactionData.__typename !== "SelfFundedTransactionRequest" ||
       !("raw" in transactionData)
     ) {
+      return onError({
+        message: ERRORS.SomethingWentWrong,
+        name: ERROR_NAMES.UnknownError
+      });
+    }
+
+    const walletClient = await getActiveWalletClient(
+      transactionData.__typename,
+      onError
+    );
+
+    if (!walletClient) {
       return;
     }
-    await handleWrongNetwork();
-    if (!data) return;
+
     return onCompleted(
-      await sendTransaction(data, {
-        account: data.account,
+      await sendTransaction(walletClient, {
+        account: walletClient.account,
         ...getTransactionData(transactionData.raw)
       })
     );
@@ -76,32 +131,37 @@ const useTransactionLifecycle = () => {
       if (typeof transactionData === "function") {
         return onError({
           message: ERRORS.SomethingWentWrong,
-          name: ERRORS.SomethingWentWrong
+          name: ERROR_NAMES.UnknownError
         });
       }
       switch (transactionData.__typename) {
         case "SponsoredTransactionRequest":
-          return await handleSponsoredTransaction(transactionData, onCompleted);
+          return await handleSponsoredTransaction(
+            transactionData,
+            onCompleted,
+            onError
+          );
         case "SelfFundedTransactionRequest":
           return await handleSelfFundedTransaction(
             transactionData,
-            onCompleted
+            onCompleted,
+            onError
           );
         case "TransactionWillFail":
           if ("reason" in transactionData) {
             return onError({
               message: transactionData.reason,
-              name: ERRORS.SomethingWentWrong
+              name: transactionData.__typename
             });
           }
           return onError({
             message: ERRORS.SomethingWentWrong,
-            name: ERRORS.SomethingWentWrong
+            name: ERROR_NAMES.UnknownError
           });
         default:
           onError({
             message: ERRORS.SomethingWentWrong,
-            name: ERRORS.SomethingWentWrong
+            name: ERROR_NAMES.UnknownError
           });
           return;
       }

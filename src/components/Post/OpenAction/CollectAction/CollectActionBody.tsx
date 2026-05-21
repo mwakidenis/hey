@@ -74,7 +74,10 @@ const CollectActionBody = ({
         : null;
   }, [data]);
 
-  const collectAction = targetAction as SimpleCollectActionFragment;
+  const collectAction = targetAction as
+    | SimpleCollectActionFragment
+    | null
+    | undefined;
   const endTimestamp = collectAction?.endsAt;
   const collectLimit = useMemo(
     () => Number(collectAction?.collectLimit || 0),
@@ -115,6 +118,14 @@ const CollectActionBody = ({
 
   if (loading) {
     return <Loader className="my-10" />;
+  }
+
+  if (!collectAction) {
+    return (
+      <div className="p-5">
+        <WarningMessage message="Collect action is unavailable" />
+      </div>
+    );
   }
 
   return (

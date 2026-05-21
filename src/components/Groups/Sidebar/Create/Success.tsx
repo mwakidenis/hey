@@ -9,13 +9,17 @@ const Success = () => {
   const { groupAddress, setScreen } = useCreateGroupStore();
 
   useEffect(() => {
-    setTimeout(() => {
-      if (groupAddress) {
-        navigate(`/g/${groupAddress}`);
-        setScreen("details");
-      }
+    if (!groupAddress) {
+      return;
+    }
+
+    const timeoutId = setTimeout(() => {
+      navigate(`/g/${groupAddress}`);
+      setScreen("details");
     }, 3000);
-  }, [groupAddress]);
+
+    return () => clearTimeout(timeoutId);
+  }, [groupAddress, navigate, setScreen]);
 
   return (
     <div className="m-8 flex flex-col items-center justify-center">

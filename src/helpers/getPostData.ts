@@ -52,7 +52,7 @@ const getPostData = (
           ),
           title: metadata.title || "Untitled",
           type: "Audio",
-          uri: metadata.audio.item || audioAttachments?.uri
+          uri: sanitizeDStorageUrl(metadata.audio.item || audioAttachments?.uri)
         },
         content: metadata.content
       };

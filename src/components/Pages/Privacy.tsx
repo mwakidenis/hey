@@ -149,7 +149,7 @@ const Privacy = () => {
                     or take action with respect to “Do Not Track” signals. For
                     more information on “Do Not Track,” visit{" "}
                     <Link
-                      rel="noreferrer"
+                      rel="noreferrer noopener"
                       target="_blank"
                       to="https://allaboutdnt.com"
                     >

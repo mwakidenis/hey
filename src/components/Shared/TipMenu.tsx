@@ -23,6 +23,7 @@ import { useAccountStore } from "@/store/persisted/useAccountStore";
 import type { ApolloClientError } from "@/types/errors";
 
 const submitButtonClassName = "w-full py-1.5 text-sm font-semibold";
+const MAX_TIP_AMOUNT = 1000;
 
 interface TipMenuProps {
   closePopover: () => void;
@@ -127,10 +128,16 @@ const TipMenu = ({ closePopover, post, account }: TipMenuProps) => {
 
   const onOtherAmount = (event: ChangeEvent<HTMLInputElement>) => {
     const value = Number(event.target.value);
-    setAmount(value);
+    setAmount(
+      Number.isFinite(value) ? Math.min(Math.max(value, 0), MAX_TIP_AMOUNT) : 0
+    );
   };
 
   const handleTip = async () => {
+    if (!Number.isFinite(cryptoRate) || cryptoRate <= 0) {
+      return toast.error("Enter a valid tip amount");
+    }
+
     setIsSubmitting(true);
     umami.track("tip", { amount: cryptoRate });
 
@@ -216,7 +223,7 @@ const TipMenu = ({ closePopover, post, account }: TipMenuProps) => {
         <div>
           <Input
             className="no-spinner"
-            max={1000}
+            max={MAX_TIP_AMOUNT}
             min={0}
             onChange={onOtherAmount}
             placeholder="300"
@@ -235,7 +242,7 @@ const TipMenu = ({ closePopover, post, account }: TipMenuProps) => {
       ) : canTip ? (
         <Button
           className={submitButtonClassName}
-          disabled={!amount || isSubmitting || !canTip}
+          disabled={amount <= 0 || isSubmitting || !canTip}
           onClick={handleTip}
         >
           <b>Tip ${amount}</b>

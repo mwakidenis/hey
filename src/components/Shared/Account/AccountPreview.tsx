@@ -1,4 +1,3 @@
-import { BeakerIcon, CheckBadgeIcon } from "@heroicons/react/24/solid";
 import * as HoverCard from "@radix-ui/react-hover-card";
 import plur from "plur";
 import type { ReactNode } from "react";
@@ -14,7 +13,6 @@ import {
   type AccountStats,
   useFullAccountLazyQuery
 } from "@/indexer/generated";
-import ENSBadge from "./ENSBadge";
 import FollowUnfollowButton from "./FollowUnfollowButton";
 
 interface AccountPreviewProps {
@@ -91,11 +89,6 @@ const AccountPreview = ({
       <div>
         <div className="flex max-w-sm items-center gap-1 truncate">
           <div>{getAccount(account).name}</div>
-          {account.hasSubscribed && (
-            <CheckBadgeIcon className="size-4 text-brand-500" />
-          )}
-          {account.isBeta && <BeakerIcon className="size-4 text-green-500" />}
-          <ENSBadge account={account} className="size-4" />
         </div>
         <span>
           <Slug className="text-sm" slug={getAccount(account).username} />

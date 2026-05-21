@@ -10,6 +10,12 @@ import {
 import { Localstorage } from "@/data/storage";
 
 type Theme = "light" | "dark";
+
+const DEFAULT_THEME: Theme = "light";
+
+const isTheme = (value: string | null): value is Theme =>
+  value === "light" || value === "dark";
+
 interface ThemeContextValue {
   theme: Theme;
   toggleTheme: () => void;
@@ -24,7 +30,7 @@ interface ThemeProviderProps {
 export const ThemeProvider = ({ children }: ThemeProviderProps) => {
   const [theme, setTheme] = useState<Theme>(() => {
     const saved = localStorage.getItem(Localstorage.Theme);
-    return (saved ?? "light") as Theme;
+    return isTheme(saved) ? saved : DEFAULT_THEME;
   });
 
   useEffect(() => {

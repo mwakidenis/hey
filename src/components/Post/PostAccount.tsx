@@ -1,5 +1,4 @@
 import { ChevronRightIcon } from "@heroicons/react/24/outline";
-import { CheckBadgeIcon } from "@heroicons/react/24/solid";
 import { memo } from "react";
 import { Link } from "react-router";
 import AccountLink from "@/components/Shared/Account/AccountLink";
@@ -37,18 +36,7 @@ const PostAccount = ({ account, group, post, timestamp }: PostAccountProps) => {
             username={account.username?.localName}
           >
             <span className="flex items-center gap-x-1 font-semibold">
-              {account.preferNameInFeed
-                ? getAccount(account).name
-                : getAccount(account).username}
-              {account.hasSubscribed && (
-                <CheckBadgeIcon className="size-4 text-brand-500" />
-              )}
-              {account.heyEns?.localName && (
-                <Image
-                  className="size-4"
-                  src="https://ens.domains/assets/brand/mark/ens-mark-Blue.svg"
-                />
-              )}
+              {getAccount(account).username}
             </span>
           </AccountPreview>
         </AccountLink>

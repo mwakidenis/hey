@@ -13,9 +13,15 @@ interface AssetDetails {
   amount: number | null;
 }
 
+const EMPTY_ASSET_DETAILS: AssetDetails = {
+  amount: null,
+  assetAddress: null,
+  assetSymbol: null
+};
+
 const extractPaymentDetails = (
   rules: GroupRuleFragment[] | AccountFollowRuleFragment[]
-): AssetDetails => {
+): AssetDetails | null => {
   for (const rule of rules) {
     if (rule.type === "SIMPLE_PAYMENT") {
       return {
@@ -28,10 +34,12 @@ const extractPaymentDetails = (
     }
   }
 
-  return { amount: null, assetAddress: null, assetSymbol: null };
+  return null;
 };
 
 export const getSimplePaymentDetails = (
   rules: GroupRules | AccountFollowRules
 ): AssetDetails =>
-  extractPaymentDetails(rules.required) || extractPaymentDetails(rules.anyOf);
+  extractPaymentDetails(rules.required) ??
+  extractPaymentDetails(rules.anyOf) ??
+  EMPTY_ASSET_DETAILS;

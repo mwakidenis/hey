@@ -10,7 +10,6 @@ export type MentionAccount = {
   username: string;
   name: string;
   picture: string;
-  subscribed: boolean;
 };
 
 const useAccountMentionQuery = (query: string): MentionAccount[] => {
@@ -45,7 +44,6 @@ const useAccountMentionQuery = (query: string): MentionAccount[] => {
             address: account.address,
             name: getAccount(account).name,
             picture: getAvatar(account),
-            subscribed: account.hasSubscribed,
             username: getAccount(account).username
           })
         );

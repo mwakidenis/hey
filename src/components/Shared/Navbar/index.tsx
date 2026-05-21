@@ -37,7 +37,7 @@ import {
 } from "@/indexer/generated";
 import { useAuthModalStore } from "@/store/non-persisted/modal/useAuthModalStore";
 import { useAccountStore } from "@/store/persisted/useAccountStore";
-import Pro from "./NavItems/Pro";
+import { useNotificationStore } from "@/store/persisted/useNotificationStore";
 import SignedAccount from "./SignedAccount";
 
 const navigationItems = {
@@ -94,6 +94,7 @@ const NavItem = memo(({ icon, onClick, url }: NavItemProps) => (
 const NavItems = memo(({ isLoggedIn }: { isLoggedIn: boolean }) => {
   const { pathname } = useLocation();
   const hasNewNotifications = useHasNewNotifications();
+  const { incrementNotificationRefreshSignal } = useNotificationStore();
   const client = useApolloClient();
   const [refreshingRoute, setRefreshingRoute] = useState<string | null>(null);
   const routes = [
@@ -134,6 +135,9 @@ const NavItems = memo(({ isLoggedIn }: { isLoggedIn: boolean }) => {
           }
           e.preventDefault();
           window.scrollTo(0, 0);
+          if (route === "/notifications") {
+            incrementNotificationRefreshSignal();
+          }
           setRefreshingRoute(route);
           try {
             await client.refetchQueries({ include: item.refreshDocs });
@@ -187,10 +191,7 @@ const Navbar = () => {
       </Link>
       <NavItems isLoggedIn={!!currentAccount} />
       {currentAccount ? (
-        <>
-          <Pro />
-          <SignedAccount />
-        </>
+        <SignedAccount />
       ) : (
         <button onClick={handleAuthClick} type="button">
           <Tooltip content="Login">
